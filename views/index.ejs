@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Edu+AU+VIC+WA+NT+Hand&display=swap");
+    </style>
+    <title>To-Do Manager</title>
+  </head>
+  <body
+    class="bg-gradient-to-r from-purple-300 to-teal-300 min-h-screen flex items-center justify-center"
+  >
+    <div
+      class="bg-white shadow-lg rounded-lg p-10 max-w-md mx-auto border border-purple-200"
+    >
+      <%- include('header.ejs') %>
+      <h1 class="text-5xl font-extrabold text-purple-800 text-center mb-6">
+        Welcome to the Indian Railways
+      </h1>
+      <p class="py-3 text-lg text-gray-800 text-center">
+        New here?
+        <a href="/signup" class="text-teal-500 font-semibold hover:underline"
+          >Sign-up now</a
+        >
+      </p>
+
+      <p class="py-3 text-lg text-gray-800 text-center">
+        Already have an account?
+        <a href="/login" class="text-teal-500 font-semibold hover:underline"
+          >Sign-in</a
+        >
+      </p>
+
+      <%- include('footer.ejs') %>
+    </div>
+  </body>
+</html>

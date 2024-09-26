@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rail Madad Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      function deleteTodo(id) {
+        fetch(`/issues/${id}`, {
+          method: "delete",
+          headers: { "Content-Type": "application/json" },
+        })
+          .then((res) => {
+            if (res.ok) {
+              window.location.reload(); //this line ensures page reload after deletion
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+    </script>
+  </head>
+  <% if (role === 'user') { %>
+  <body class="bg-gray-100 min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-blue-800 text-white flex flex-col p-6">
+      <h2 class="text-2xl font-bold mb-6">Rail Madad</h2>
+      <nav class="flex-1">
+        <ul class="space-y-4">
+          <li>
+            <a
+              href="#submit-Issue"
+              class="text-white font-semibold hover:bg-blue-600 p-3 block rounded"
+              >Submit Issue</a
+            >
+          </li>
+          <li>
+            <a
+              href="#Issue-status"
+              class="text-white font-semibold hover:bg-blue-600 p-3 block rounded"
+              >Issue Status</a
+            >
+          </li>
+          <li>
+            <a
+              href="#chatbot"
+              class="text-white font-semibold hover:bg-blue-600 p-3 block rounded"
+              >AI Chatbot</a
+            >
+          </li>
+          <li>
+            <a
+              href="#feedback"
+              class="text-white font-semibold hover:bg-blue-600 p-3 block rounded"
+              >Feedback</a
+            >
+          </li>
+        </ul>
+      </nav>
+      <footer class="mt-6">
+        <p class="text-sm">&copy; 2024 Rail Madad</p>
+      </footer>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 p-6">
+      <button
+        onClick="window.location.href='/signout'"
+        class="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-red-700 transition duration-300 ease-in-out mt-4 mb-6"
+      >
+        Sign Out
+      </button>
+      <!-- Section: Submit Issue -->
+      <section id="submit-Issue" class="mb-12">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+          <h1 class="text-3xl font-bold text-gray-800 mb-6">Submit a Issue</h1>
+          <form
+            id="IssueForm"
+            enctype="multipart/form-data"
+            class="space-y-6"
+            method="post"
+            action="/issues"
+          >
+            <!-- Issue Text -->
+            <div>
+              <label for="title" class="block text-sm font-medium text-gray-700"
+                >Issue Title:</label
+              >
+              <input
+                type="text"
+                id="title"
+                name="title"
+                class="mt-2 p-3 block w-full rounded-md border border-gray-300 focus:ring-purple-500 focus:border-purple-500 shadow-sm"
+                placeholder="Enter the title of your Issue"
+              />
+            </div>
+            <div>
+              <label for="desc" class="block text-sm font-medium text-gray-700"
+                >Issue Description:</label
+              >
+              <textarea
+                id="desc"
+                name="desc"
+                rows="4"
+                class="mt-2 p-3 block w-full rounded-md border border-gray-300 focus:ring-purple-500 focus:border-purple-500 shadow-sm"
+                placeholder="Enter the description of your Issue"
+              ></textarea>
+            </div>
+
+            <!-- Image Upload -->
+            <div>
+              <label
+                for="images"
+                class="block text-sm font-medium text-gray-700"
+              >
+                Upload Images:
+              </label>
+              <input
+                type="file"
+                id="images"
+                name="images"
+                accept="image/*"
+                multiple
+                class="mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-100 file:text-purple-700 hover:file:bg-purple-200"
+              />
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="w-full bg-purple-600 text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-purple-700 transition duration-300 ease-in-out"
+            >
+              Submit Issue
+            </button>
+          </form>
+
+          <!-- Response Div -->
+          <div id="response" class="mt-6 text-center text-gray-700"></div>
+        </div>
+      </section>
+
+      <!-- Section: issues posted by the user -->
+      <div>
+        <h5>Issues you have posted</h5>
+        <div id="count-issues"><%=issues.length%></div>
+      </div>
+      <table class="table-auto w-full mt-8 mb-6">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="px-6 py-3 text-left text-gray-700 font-semibold">
+              Title
+            </th>
+            <th class="px-6 py-3 text-left text-gray-700 font-semibold">
+              Description
+            </th>
+            <th class="px-6 py-3 text-left text-gray-700 font-semibold">
+              Created Date
+            </th>
+            <th class="px-6 py-3 text-left text-gray-700 font-semibold">
+              Completion Status
+            </th>
+            <th class="px-6 py-3 text-left text-gray-700 font-semibold">
+              Delete the issue
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <%- include('issue.ejs') %>
+        </tbody>
+      </table>
+
+      <!-- Section: AI Chatbot -->
+      <section id="chatbot" class="mb-12">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+          <h1 class="text-3xl font-bold text-gray-800 mb-6">AI Chatbot</h1>
+          <p class="text-gray-700">
+            Our AI chatbot is available 24/7 to assist you with your queries,
+            help with Issue submission, and provide updates on Issue resolution.
+          </p>
+          <div class="mt-4">
+            <button
+              class="bg-purple-600 text-white py-3 px-6 rounded-lg shadow-lg hover:bg-purple-700 transition duration-300"
+            >
+              Launch Chatbot
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Feedback -->
+      <section id="feedback" class="mb-12">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+          <h1 class="text-3xl font-bold text-gray-800 mb-6">Feedback</h1>
+          <p class="text-gray-700">
+            Please provide your feedback on the Issue resolution process. Your
+            feedback helps us improve our services.
+          </p>
+          <form id="feedbackForm" class="mt-4 space-y-4">
+            <div>
+              <label
+                for="feedbackText"
+                class="block text-sm font-medium text-gray-700"
+                >Feedback:</label
+              >
+              <textarea
+                id="feedbackText"
+                name="feedbackText"
+                rows="4"
+                class="mt-2 p-3 block w-full rounded-md border border-gray-300 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                placeholder="Enter your feedback"
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-yellow-500 text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-yellow-600 transition duration-300 ease-in-out"
+            >
+              Submit Feedback
+            </button>
+          </form>
+          <div
+            id="feedbackResponse"
+            class="mt-6 text-center text-gray-700"
+          ></div>
+        </div>
+      </section>
+    </main>
+    <script>
+      //   document
+      //     .getElementById("IssueForm")
+      //     .addEventListener("submit", async function (event) {
+      //       event.preventDefault(); // Prevent default form submission
+
+      //       const form = document.getElementById("IssueForm");
+      //       const formData = new FormData(form); // Create FormData object with form inputs
+
+      //       try {
+      //         const response = await fetch("/submitIssue", {
+      //           method: "POST",
+      //           body: formData, // Send the form data (text and image)
+      //         });
+
+      //         if (response.ok) {
+      //           const jsonResponse = await response.json();
+      //           document.getElementById("response").innerHTML = `
+      //                       <p class="text-green-600 font-semibold"> ${jsonResponse.message} </p>
+      //                       <p class="text-gray-800">Assigned Department: <strong>${jsonResponse.department}</strong></p>
+      //                   `;
+      //         } else {
+      //           document.getElementById("response").innerHTML = `
+      //                       <p class="text-red-600 font-semibold">Error submitting Issue. Please try again.</p>
+      //                   `;
+      //         }
+      //         const IssueID = `Issue_${Date.now()}`; // Generate a unique ID using the current timestamp
+      //         const IssueData = {
+      //           title: formData.get("text"),
+      //           category: "General", // You can modify this as needed
+      //           urgency: "Normal", // You can modify this as needed
+      //           department: jsonResponse.department,
+      //           status: "pending",
+      //           actions: [],
+      //           feedback: "",
+      //         };
+
+      //         // Save to local storage
+      //         localStorage.setItem(IssueID, JSON.stringify(IssueData));
+      //       } catch (error) {
+      //         document.getElementById("response").innerHTML = `
+      //                   <p class="text-red-600 font-semibold">Network error. Please check your connection and try again.</p>
+      //               `;
+      //       }
+      //       // Store the Issue in local storage
+      //     });
+    </script>
+  </body>
+  <% } else { %>
+  <body class="bg-gray-100">
+    <button
+      onClick="window.location.href='/signout'"
+      class="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:bg-red-700 transition duration-300 ease-in-out mt-4 mb-6"
+    >
+      Sign Out
+    </button>
+    <div class="container mx-auto px-4 py-8">
+      <!-- Dashboard Header -->
+      <header class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-800">
+          Rail Madad Admin Dashboard
+        </h1>
+        <p class="text-gray-600 mt-4">
+          Efficiently manage and categorize complaints
+        </p>
+      </header>
+
+      <!-- Dashboard Overview -->
+      <section id="dashboard-overview" class="mb-12">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-6">
+          Dashboard Overview
+        </h2>
+        <div class="grid grid-cols-3 gap-6">
+          <div class="bg-blue-500 text-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-xl font-bold">Total Complaints</h3>
+            <p id="total-complaints" class="text-4xl mt-2">45</p>
+          </div>
+          <div class="bg-yellow-500 text-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-xl font-bold">In Progress</h3>
+            <p id="in-progress-complaints" class="text-4xl mt-2">15</p>
+          </div>
+          <div class="bg-green-500 text-white p-6 rounded-lg shadow-lg">
+            <h3 class="text-xl font-bold">Resolved</h3>
+            <p id="resolved-complaints" class="text-4xl mt-2">30</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Complaint Assignment and Categorization -->
+      <section id="complaint-categorization" class="mb-12">
+        <h2 class="text-2xl font-semibold text-gray-700 mb-6">
+          Complaint Categorization & Assignment
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white shadow-md rounded-lg">
+            <thead>
+              <tr class="bg-gray-200">
+                <th class="py-4 px-6 text-left font-semibold text-gray-700">
+                  Issue ID
+                </th>
+                <th class="py-4 px-6 text-left font-semibold text-gray-700">
+                  Title
+                </th>
+                <th class="py-4 px-6 text-left font-semibold text-gray-700">
+                  description
+                </th>
+                <th class="py-4 px-6 text-left font-semibold text-gray-700">
+                  Category
+                </th>
+                <th class="py-4 px-6 text-left font-semibold text-gray-700">
+                  Department
+                </th>
+                <th class="py-4 px-6 text-left font-semibold text-gray-700">
+                  Urgency
+                </th>
+              </tr>
+            </thead>
+            <tbody id="complaint-list">
+              <!-- Dynamic rows generated via JavaScript -->
+              <%-include('issue.ejs')%>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+  <% } %>
+</html>
